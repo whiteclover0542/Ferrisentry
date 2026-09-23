@@ -8,7 +8,7 @@ Legend: `[x]` complete, `[~]` in progress, `[ ]` not started.
 ## Phase 0 — Foundation
 
 - [x] Task 1: WSL2 and Rust/eBPF toolchain; see [development setup](docs/DEV_SETUP.md).
-- [~] Task 2: Scaffold the Aya workspace.
+- [x] Task 2: Scaffold the Aya workspace.
 - [ ] Task 3: Define the shared `ExecEvent` structure.
 - [ ] Task 4: Implement the execve tracepoint probe.
 - [ ] Task 5: Implement the userspace loader and ring-buffer reader.
