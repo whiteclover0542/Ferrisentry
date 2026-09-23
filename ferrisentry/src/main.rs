@@ -1,56 +1,69 @@
-use aya::programs::TracePoint;
-#[rustfmt::skip]
-use log::{debug, warn};
-use tokio::signal;
+use anyhow::{Context, Result};
+use aya::{include_bytes_aligned, maps::RingBuf, programs::TracePoint, Ebpf};
+use ferrisentry_common::ExecEvent;
+use log::info;
+use tokio::{signal, time};
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<()> {
     env_logger::init();
 
-    // Bump the memlock rlimit. This is needed for older kernels that don't use the
-    // new memcg based accounting, see https://lwn.net/Articles/837122/
-    let rlim = libc::rlimit {
-        rlim_cur: libc::RLIM_INFINITY,
-        rlim_max: libc::RLIM_INFINITY,
-    };
-    let ret = unsafe { libc::setrlimit(libc::RLIMIT_MEMLOCK, &rlim) };
-    if ret != 0 {
-        debug!("remove limit on locked memory failed, ret is: {ret}");
-    }
-
-    // This will include your eBPF object file as raw bytes at compile-time and load it at
-    // runtime. This approach is recommended for most real-world use cases. If you would
-    // like to specify the eBPF program at runtime rather than at compile-time, you can
-    // reach for `Bpf::load_file` instead.
-    let mut ebpf = aya::Ebpf::load(aya::include_bytes_aligned!(concat!(
+    let mut ebpf = Ebpf::load(include_bytes_aligned!(concat!(
         env!("OUT_DIR"),
         "/ferrisentry"
     )))?;
-    match aya_log::EbpfLogger::init(&mut ebpf) {
-        Err(e) => {
-            // This can happen if you remove all log statements from your eBPF program.
-            warn!("failed to initialize eBPF logger: {e}");
-        }
-        Ok(logger) => {
-            let mut logger =
-                tokio::io::unix::AsyncFd::with_interest(logger, tokio::io::Interest::READABLE)?;
-            tokio::task::spawn(async move {
-                loop {
-                    let mut guard = logger.readable_mut().await.unwrap();
-                    guard.get_inner_mut().flush();
-                    guard.clear_ready();
-                }
-            });
-        }
-    }
-    let program: &mut TracePoint = ebpf.program_mut("ferrisentry").unwrap().try_into()?;
+
+    let program: &mut TracePoint = ebpf
+        .program_mut("trace_exec")
+        .context("trace_exec program not found")?
+        .try_into()?;
     program.load()?;
     program.attach("sched", "sched_process_exec")?;
 
-    let ctrl_c = signal::ctrl_c();
-    println!("Waiting for Ctrl-C...");
-    ctrl_c.await?;
-    println!("Exiting...");
+    let mut ring_buf = RingBuf::try_from(
+        ebpf.take_map("EXEC_EVENTS")
+            .context("EXEC_EVENTS map not found")?,
+    )?;
+
+    info!("Monitoring process execution... (Ctrl+C to stop)");
+
+    let mut tick = time::interval(time::Duration::from_millis(50));
+    loop {
+        tokio::select! {
+            _ = signal::ctrl_c() => break,
+            _ = tick.tick() => {
+                while let Some(data) = ring_buf.next() {
+                    if data.len() < std::mem::size_of::<ExecEvent>() {
+                        continue;
+                    }
+                    let event = unsafe { std::ptr::read_unaligned(data.as_ptr() as *const ExecEvent) };
+                    println!("{}", format_event(&event));
+                }
+            }
+        }
+    }
 
     Ok(())
+}
+
+fn format_event(event: &ExecEvent) -> String {
+    let comm = String::from_utf8_lossy(&event.comm);
+    format!("PID: {} COMM: {}", event.pid, comm.trim_end_matches('\0'))
+}
+
+#[cfg(test)]
+mod tests {
+    use ferrisentry_common::ExecEvent;
+
+    use super::format_event;
+
+    #[test]
+    fn formats_a_nul_terminated_command_name() {
+        let event = ExecEvent {
+            pid: 4242,
+            comm: *b"ferrisentry\0\0\0\0\0",
+        };
+
+        assert_eq!(format_event(&event), "PID: 4242 COMM: ferrisentry");
+    }
 }

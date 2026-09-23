@@ -11,8 +11,8 @@ Legend: `[x]` complete, `[~]` in progress, `[ ]` not started.
 - [x] Task 2: Scaffold the Aya workspace.
 - [x] Task 3: Define the shared `ExecEvent` structure.
 - [x] Task 4: Implement the execve tracepoint probe.
-- [~] Task 5: Implement the userspace loader and ring-buffer reader.
-- [ ] Task 6: Add the execve capture integration test.
+- [x] Task 5: Implement the userspace loader and ring-buffer reader.
+- [~] Task 6: Add the execve capture integration test.
 - [ ] Task 7: Write the project README.
 
 ## Notes
