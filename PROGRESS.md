@@ -1,6 +1,6 @@
 # Ferrisentry Progress
 
-- Last updated: 2026-09-23
+- Last updated: 2026-09-25
 - Plan: [Phase 0](docs/superpowers/plans/2026-09-22-phase0-foundation.md)
 
 Legend: `[x]` complete, `[~]` in progress, `[ ]` not started.
@@ -12,8 +12,11 @@ Legend: `[x]` complete, `[~]` in progress, `[ ]` not started.
 - [x] Task 3: Define the shared `ExecEvent` structure.
 - [x] Task 4: Implement the execve tracepoint probe.
 - [x] Task 5: Implement the userspace loader and ring-buffer reader.
-- [~] Task 6: Add the execve capture integration test.
-- [ ] Task 7: Write the project README.
+- [x] Task 6: Add the execve capture integration test (PASS on Ubuntu WSL2).
+- [x] Task 7: Write the project README.
+
+Next: create the Phase 1 plan for the additional probes, shared event format,
+and cgroup/container enrichment.
 
 ## Notes
 

@@ -1,56 +1,64 @@
-# ferrisentry
+# Ferrisentry
 
-## Prerequisites
+Ferrisentry is a Rust eBPF learning project for Kubernetes runtime security.
+It uses Aya to collect Linux process-execution events and deliver them to a
+userspace agent through a ring buffer.
 
-1. stable rust toolchains: `rustup toolchain install stable`
-1. nightly rust toolchains: `rustup toolchain install nightly --component rust-src`
-1. (if cross-compiling) rustup target: `rustup target add ${ARCH}-unknown-linux-musl`
-1. (if cross-compiling) LLVM: (e.g.) `brew install llvm` (on macOS)
-1. bpf-linker: `cargo install bpf-linker` (`--no-default-features` on macOS)
+- [Project plan](PLANNING.md)
+- [Design specification](docs/superpowers/specs/2026-09-22-ferrisentry-design.md)
+- [Progress](PROGRESS.md)
 
-## Build & Run
+## Current status: Phase 0 — Foundation
 
-Use `cargo build`, `cargo check`, etc. as normal. Run your program with:
+The current agent attaches to `sched:sched_process_exec`, captures a process
+PID and command name, and prints events in this form:
 
-```shell
-cargo run --release
+```text
+PID: 1234 COMM: bash
 ```
 
-Cargo build scripts are used to automatically build the eBPF correctly and include it in the
-program.
+Rule evaluation, Kubernetes metadata enrichment, additional probes, and
+alerting are deliberately outside Phase 0.
 
-## Cross-compiling on macOS
+## Development environment
 
-Cross compilation should work on both Intel and Apple Silicon Macs.
+eBPF requires a Linux kernel. Build and run this project in Ubuntu WSL2 (or
+another Linux host), not native Windows PowerShell.
 
-```shell
-cargo build --package ferrisentry --release \
-  --target=${ARCH}-unknown-linux-musl \
-  --config=target.${ARCH}-unknown-linux-musl.linker=\"rust-lld\"
+See [docs/DEV_SETUP.md](docs/DEV_SETUP.md) for the required Rust, Aya, and
+WSL2 setup.
+
+## Run
+
+In an Ubuntu WSL shell:
+
+```bash
+cargo build --release
+sudo ./target/release/ferrisentry
 ```
-The cross-compiled program `target/${ARCH}-unknown-linux-musl/release/ferrisentry` can be
-copied to a Linux server or VM and run there.
+
+The process stays active until `Ctrl+C`. In a separate shell, run an external
+program such as `/bin/echo hello` to produce an event.
+
+## Verify
+
+```bash
+./tests/verify_execve_capture.sh
+```
+
+The script builds the release binary, starts it with elevated privileges, runs
+`/bin/echo`, and expects:
+
+```text
+PASS: execve event captured for 'echo'
+```
 
 ## License
 
-With the exception of eBPF code, ferrisentry is distributed under the terms
-of either the [MIT license] or the [Apache License] (version 2.0), at your
-option.
+With the exception of eBPF code, Ferrisentry is distributed under either the
+[MIT license] or the [Apache License], at your option. eBPF code is distributed
+under either the [GNU General Public License, Version 2] or the MIT license.
 
-Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion in this crate by you, as defined in the Apache-2.0 license, shall
-be dual licensed as above, without any additional terms or conditions.
-
-### eBPF
-
-All eBPF code is distributed under either the terms of the
-[GNU General Public License, Version 2] or the [MIT license], at your
-option.
-
-Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion in this project by you, as defined in the GPL-2 license, shall be
-dual licensed as above, without any additional terms or conditions.
-
-[Apache license]: LICENSE-APACHE
+[Apache License]: LICENSE-APACHE
 [MIT license]: LICENSE-MIT
 [GNU General Public License, Version 2]: LICENSE-GPL2
