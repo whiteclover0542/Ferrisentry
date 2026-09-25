@@ -4,6 +4,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 cargo build --release
 
+# Cache sudo authentication before starting the background probe process.
+sudo -v
+
 LOG_FILE=$(mktemp)
 sudo ./target/release/ferrisentry > "$LOG_FILE" 2>&1 &
 AGENT_PID=$!
