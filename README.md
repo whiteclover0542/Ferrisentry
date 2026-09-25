@@ -4,7 +4,6 @@ Ferrisentry is a Rust eBPF learning project for Kubernetes runtime security.
 It uses Aya to collect Linux process-execution events and deliver them to a
 userspace agent through a ring buffer.
 
-- [Project plan](PLANNING.md)
 - [Design specification](docs/superpowers/specs/2026-09-22-ferrisentry-design.md)
 - [Progress](PROGRESS.md)
 
