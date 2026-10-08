@@ -1,7 +1,7 @@
 # Ferrisentry 진행 현황
 
 - 마지막 업데이트: 2026-10-08
-- 기획서: [PLANNING.md](PLANNING.md) · 설계: [spec](docs/superpowers/specs/2026-09-22-ferrisentry-design.md) · 현재 plan: [Phase 0](docs/superpowers/plans/2026-09-22-phase0-foundation.md)
+- 기획서: [PLANNING.md](PLANNING.md) · 설계: [spec](docs/superpowers/specs/2026-09-22-ferrisentry-design.md) · 현재 plan: [Phase 1](docs/superpowers/plans/2026-10-08-phase1-core-probes.md)
 
 범례: ✅ 완료 · 🔄 진행 중 · ⬜ 미완료
 
@@ -13,11 +13,12 @@
 
 지금 바로 해야 할 일 (위에서부터 순서대로):
 
-- [ ] Phase 1 plan 작성 (`docs/superpowers/plans/`)
-- [ ] Phase 1: `connect` / `openat` / `setuid` probe 추가
-- [ ] Phase 1: 이벤트 공통 포맷으로 통합 (+ ppid, cgroup_id)
-- [ ] Phase 1: ring buffer drop 카운터
-- [ ] Phase 1: cgroup ID → 컨테이너 ID 매핑
+- [ ] Phase 1 Task 1: 공용 `Event` 포맷으로 교체
+- [ ] Phase 1 Task 2~4: `setuid` → `connect` → `openat` probe 추가
+- [ ] Phase 1 Task 5: ring buffer 유실 카운터
+- [ ] Phase 1 Task 6: `ppid`, `cgroup_id` 채우기 (aya-tool vmlinux 바인딩)
+- [ ] Phase 1 Task 7: cgroup ID → cgroup 경로/컨테이너 ID 매핑
+- [ ] Phase 1 Task 8: 문서 갱신
 
 보류/메모:
 
@@ -48,13 +49,19 @@
 | ✅ | 7. README | `README.md` |
 
 ### Phase 1 — 핵심 probe (2~3주) · MVP
-| 상태 | 작업 |
-|---|---|
-| ⬜ | plan 작성 |
-| ⬜ | `connect` / `openat` / `setuid` probe |
-| ⬜ | 이벤트 공통 포맷 + ppid, cgroup_id 추가 |
-| ⬜ | ring buffer drop 카운트 |
-| ⬜ | cgroup ID → 컨테이너 ID 매핑 |
+plan: [2026-10-08-phase1-core-probes.md](docs/superpowers/plans/2026-10-08-phase1-core-probes.md)
+
+| 상태 | Task | 내용 |
+|---|---|---|
+| ✅ | — | plan 작성 |
+| ⬜ | 1 | 공용 `Event` 포맷으로 교체 (exec 이식, ABI 테스트) |
+| ⬜ | 2 | `setuid` probe |
+| ⬜ | 3 | `connect` probe (목적지 IP/포트) |
+| ⬜ | 4 | `openat` probe (쓰기 의도 flags만) |
+| ⬜ | 5 | ring buffer 유실 카운터 |
+| ⬜ | 6 | `ppid`, `cgroup_id` 채우기 |
+| ⬜ | 7 | cgroup 경로 / 컨테이너 ID 매핑 |
+| ⬜ | 8 | 문서 갱신 |
 
 ### Phase 2 — 룰 엔진 (2주) · MVP
 | 상태 | 작업 |
@@ -109,6 +116,7 @@
 | 2026-09-22 | 기획서(MVP 포함), PROGRESS 작성, Phase 0 plan 수정 | — |
 | 2026-09-25 | Phase 0 Task 1~7 구현 완료 (툴체인 → 워크스페이스 → probe → 로더 → 통합 테스트 → README) | `9da66ed`..`ca27c80` |
 | 2026-10-08 | revert된 Phase 0 구현 복구 + 문서 한국어 정리 후 main 병합 | `3e0dc54`, `a60a567` |
+| 2026-10-08 | Phase 1 plan 작성 (probe 4종, 유실 카운터, cgroup 매핑) | — |
 
 ### Phase 0 검증 기록
 
