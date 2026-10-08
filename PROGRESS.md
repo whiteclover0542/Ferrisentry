@@ -108,7 +108,7 @@
 | 2026-09-22 | Phase 0 plan 작성 | `4c9feac` |
 | 2026-09-22 | 기획서(MVP 포함), PROGRESS 작성, Phase 0 plan 수정 | — |
 | 2026-09-25 | Phase 0 Task 1~7 구현 완료 (툴체인 → 워크스페이스 → probe → 로더 → 통합 테스트 → README) | `9da66ed`..`ca27c80` |
-| 2026-10-08 | revert된 Phase 0 구현 복구 + 문서 한국어 정리 후 main 병합 | `3e0dc54` 이후 |
+| 2026-10-08 | revert된 Phase 0 구현 복구 + 문서 한국어 정리 후 main 병합 | `3e0dc54`, `a60a567` |
 
 ### Phase 0 검증 기록
 
@@ -116,3 +116,5 @@
 - `cargo build` / `cargo test --config 'target."cfg(all())".runner="env"'` 통과
 - `./tests/verify_execve_capture.sh` (root 실행) → `PASS: execve event captured for 'echo'`
 - `bpf-linker`는 소스 빌드에 LLVM이 필요해서 `cargo-binstall`로 설치함
+- 2026-10-08 main 병합 후 재검증: 유닛 테스트 2개 통과, 통합 테스트 PASS
+- 원격(`origin`)의 `main`은 GitHub가 만든 `Initial commit`(README만)이라서 로컬 히스토리와 분기되어 있다. 아직 푸시하지 않았다
