@@ -1,7 +1,8 @@
 # Ferrisentry 진행 현황
 
 - 마지막 업데이트: 2026-10-08
-- 기획서: [PLANNING.md](PLANNING.md) · 설계: [spec](docs/superpowers/specs/2026-09-22-ferrisentry-design.md) · 현재 plan: [Phase 1](docs/superpowers/plans/2026-10-08-phase1-core-probes.md)
+- 기획서: [PLANNING.md](PLANNING.md) · 설계: [spec](docs/superpowers/specs/2026-09-22-ferrisentry-design.md) · 용어집: [GLOSSARY.md](docs/GLOSSARY.md)
+- 현재 plan: [Phase 1 — 핵심 probe](docs/superpowers/plans/2026-10-08-phase1-core-probes.md)
 
 범례: ✅ 완료 · 🔄 진행 중 · ⬜ 미완료
 
@@ -36,6 +37,7 @@
 | ✅ | 설계 문서 (spec) |
 | ✅ | Phase 0 plan |
 | ✅ | 기획서 (MVP 정의 포함) + PROGRESS |
+| ✅ | 용어집 (`docs/GLOSSARY.md`, 용어 99개) |
 
 ### Phase 0 — Foundation (1~2주) · MVP
 | 상태 | Task | 결과물 |
@@ -116,7 +118,9 @@ plan: [2026-10-08-phase1-core-probes.md](docs/superpowers/plans/2026-10-08-phase
 | 2026-09-22 | 기획서(MVP 포함), PROGRESS 작성, Phase 0 plan 수정 | — |
 | 2026-09-25 | Phase 0 Task 1~7 구현 완료 (툴체인 → 워크스페이스 → probe → 로더 → 통합 테스트 → README) | `9da66ed`..`ca27c80` |
 | 2026-10-08 | revert된 Phase 0 구현 복구 + 문서 한국어 정리 후 main 병합 | `3e0dc54`, `a60a567` |
-| 2026-10-08 | Phase 1 plan 작성 (probe 4종, 유실 카운터, cgroup 매핑) | — |
+| 2026-10-08 | `.gitattributes`로 작업 트리 줄바꿈 LF 고정 (CRLF면 WSL에서 셸 스크립트 실행 불가) | `8221dd6` |
+| 2026-10-08 | Phase 1 plan 작성 (probe 4종, 유실 카운터, cgroup 매핑) | `f0e2b86` |
+| 2026-10-08 | 용어집 작성 (리눅스/eBPF/Rust/K8s/보안 용어 99개) | `7c6baa2` |
 
 ### Phase 0 검증 기록
 
