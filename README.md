@@ -7,6 +7,7 @@ Falco/Tetragon과 같은 카테고리의 학습/포트폴리오 프로젝트입�
 - 기획서: [PLANNING.md](PLANNING.md)
 - 설계 문서: [docs/superpowers/specs/2026-09-22-ferrisentry-design.md](docs/superpowers/specs/2026-09-22-ferrisentry-design.md)
 - 진행 현황: [PROGRESS.md](PROGRESS.md)
+- 용어집: [docs/GLOSSARY.md](docs/GLOSSARY.md) — 문서에 나오는 eBPF/Kubernetes/보안 용어 설명
 
 ## 현재 상태: Phase 0 (Foundation) 완료
 
