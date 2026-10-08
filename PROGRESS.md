@@ -117,4 +117,4 @@
 - `./tests/verify_execve_capture.sh` (root 실행) → `PASS: execve event captured for 'echo'`
 - `bpf-linker`는 소스 빌드에 LLVM이 필요해서 `cargo-binstall`로 설치함
 - 2026-10-08 main 병합 후 재검증: 유닛 테스트 2개 통과, 통합 테스트 PASS
-- 원격(`origin`)의 `main`은 GitHub가 만든 `Initial commit`(README만)이라서 로컬 히스토리와 분기되어 있다. 아직 푸시하지 않았다
+- 원격(`origin`)의 `main`은 GitHub가 만든 `Initial commit`(README 한 줄)뿐이라 로컬과 히스토리가 분기되어 있었다. 2026-10-08에 로컬 히스토리로 force-push하고, revert 상태로 남아 있던 원격 `phase0-foundation` 브랜치는 삭제했다
