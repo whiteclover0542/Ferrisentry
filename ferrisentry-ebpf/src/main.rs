@@ -8,7 +8,7 @@ use aya_ebpf::{
     maps::RingBuf,
     programs::TracePointContext,
 };
-use ferrisentry_common::{Event, KIND_EXEC, PATH_LEN};
+use ferrisentry_common::{Event, KIND_EXEC, KIND_SETUID, PATH_LEN};
 
 #[map]
 static EVENTS: RingBuf = RingBuf::with_byte_size(256 * 1024, 0);
@@ -45,6 +45,23 @@ pub fn trace_exec(_ctx: TracePointContext) -> u32 {
         emit(&event);
     }
     0
+}
+
+// The uid argument is a syscall register slot; uid_t uses its low 32 bits.
+const SETUID_UID_OFFSET: usize = 16;
+
+#[tracepoint]
+pub fn trace_setuid(ctx: TracePointContext) -> u32 {
+    try_trace_setuid(&ctx).unwrap_or(0)
+}
+
+fn try_trace_setuid(ctx: &TracePointContext) -> Result<u32, c_long> {
+    let target_uid =
+        unsafe { ctx.read_at::<u64>(SETUID_UID_OFFSET) }.map_err(|error| error as c_long)?;
+    let mut event = base_event(KIND_SETUID)?;
+    event.arg = target_uid as u32 as u64;
+    emit(&event);
+    Ok(0)
 }
 
 #[cfg(not(test))]

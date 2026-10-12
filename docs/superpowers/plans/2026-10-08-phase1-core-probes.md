@@ -288,7 +288,7 @@ git add -A && git commit -m "refactor: replace ExecEvent with a shared Event for
 - Consumes: Task 1의 `Event`, `emit`, `base_event`
 - Produces: `trace_setuid` 프로그램 (`syscalls:sys_enter_setuid`), 출력 `[setuid] ... target_uid=<n>`
 
-- [ ] **Step 1: eBPF에 probe 추가**
+- [x] **Step 1: eBPF에 probe 추가**
 
 ```rust
 const SETUID_UID_OFFSET: usize = 16; // /sys/kernel/tracing/events/syscalls/sys_enter_setuid/format
@@ -312,7 +312,7 @@ fn try_trace_setuid(ctx: &TracePointContext) -> Result<u32, c_long> {
 
 [추정] `read_at`은 `Result<T, i32>`를 돌려주므로 에러 타입 변환이 필요하다. 컴파일 에러가 나면 시그니처를 보고 맞춘다.
 
-- [ ] **Step 2: 유저스페이스에서 attach**
+- [x] **Step 2: 유저스페이스에서 attach**
 
 프로그램이 여러 개가 되므로 attach를 헬퍼로 묶는다.
 
@@ -333,7 +333,7 @@ attach(&mut ebpf, "trace_exec", "sched", "sched_process_exec")?;
 attach(&mut ebpf, "trace_setuid", "syscalls", "sys_enter_setuid")?;
 ```
 
-- [ ] **Step 3: 통합 테스트를 probe별 케이스 구조로 바꾸기**
+- [x] **Step 3: 통합 테스트를 probe별 케이스 구조로 바꾸기**
 
 `tests/verify_execve_capture.sh`를 `tests/verify_probes.sh`로 옮기고(`git mv`), 에이전트를 한 번만 띄운 뒤 여러 동작을 실행해서 각각을 grep한다.
 
@@ -379,7 +379,7 @@ fi
 echo "ALL PASS"
 ```
 
-- [ ] **Step 4: 실행 + 커밋**
+- [x] **Step 4: 실행 + 커밋**
 
 ```bash
 chmod +x tests/verify_probes.sh && sudo ./tests/verify_probes.sh

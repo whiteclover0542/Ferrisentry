@@ -15,7 +15,8 @@
 지금 바로 해야 할 일 (위에서부터 순서대로):
 
 - [x] Phase 1 Task 1: 공용 `Event` 포맷으로 교체
-- [ ] Phase 1 Task 2~4: `setuid` → `connect` → `openat` probe 추가
+- [x] Phase 1 Task 2: `setuid` probe 추가
+- [ ] Phase 1 Task 3~4: `connect` → `openat` probe 추가
 - [ ] Phase 1 Task 5: ring buffer 유실 카운터
 - [ ] Phase 1 Task 6: `ppid`, `cgroup_id` 채우기 (aya-tool vmlinux 바인딩)
 - [ ] Phase 1 Task 7: cgroup ID → cgroup 경로/컨테이너 ID 매핑
@@ -57,7 +58,7 @@ plan: [2026-10-08-phase1-core-probes.md](docs/superpowers/plans/2026-10-08-phase
 |---|---|---|
 | ✅ | — | plan 작성 |
 | ✅ | 1 | 공용 `Event` 포맷으로 교체 (exec 이식, ABI 테스트) |
-| ⬜ | 2 | `setuid` probe |
+| ✅ | 2 | `setuid` probe |
 | ⬜ | 3 | `connect` probe (목적지 IP/포트) |
 | ⬜ | 4 | `openat` probe (쓰기 의도 flags만) |
 | ⬜ | 5 | ring buffer 유실 카운터 |
@@ -138,3 +139,14 @@ plan: [2026-10-08-phase1-core-probes.md](docs/superpowers/plans/2026-10-08-phase
 - 유닛 테스트 6개 통과 (포맷/C 문자열 5개, ABI 1개); cargo test runner env 사용.
 - ./tests/verify_execve_capture.sh → PASS: execve event captured for 'echo'.
 - ppid/cgroup_id는 Task 6까지 0이며, connect 목적지 포맷은 Task 3에서 추가.
+
+### Phase 1 Task 2 검증 기록
+
+- 2026-10-12, Ubuntu WSL2 root에서 `syscalls:sys_enter_setuid` probe 검증 완료.
+- TDD: 구현 전 exec PASS / setuid FAIL을 확인한 뒤 probe와 attach 헬퍼를 추가.
+- syscall 인자 offset 16의 u64를 uid_t 의미에 맞춰 u32로 좁힌 뒤 Event.arg에 저장. reserved는 계속 0.
+- `cargo test --config 'target."cfg(all())".runner="env"'`: 기존 유닛/ABI 테스트 6개 통과.
+- `bash tests/verify_probes.sh`: exec PASS, 고유 comm의 setuid(0) PASS, ALL PASS. 종료 후 agent 프로세스 없음.
+- `cargo +nightly fmt --check`, `git diff --check` 통과.
+- WSL에서는 BPF pid가 초기 PID namespace 기준이라 Python os.getpid()와 달랐다. 테스트는 prctl로 14바이트 고유 comm을 설정해 sudo의 setuid 이벤트와 구분한다.
+- 비root 경로는 sudo로 스크립트를 재실행한 뒤 agent를 직접 시작하고 kill/wait로 회수한다. 이 환경에는 sudo 비밀번호가 없어 root 경로로 검증했다.

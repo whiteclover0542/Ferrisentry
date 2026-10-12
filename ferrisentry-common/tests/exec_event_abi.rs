@@ -1,4 +1,5 @@
 use core::mem::{align_of, offset_of, size_of};
+
 use ferrisentry_common::{
     COMM_LEN, Event, KIND_CONNECT, KIND_EXEC, KIND_OPENAT, KIND_SETUID, PATH_LEN,
 };

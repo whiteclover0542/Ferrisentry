@@ -13,16 +13,12 @@ async fn main() -> Result<()> {
         "/ferrisentry"
     )))?;
 
-    let program: &mut TracePoint = ebpf
-        .program_mut("trace_exec")
-        .context("trace_exec program not found")?
-        .try_into()?;
-    program.load()?;
-    program.attach("sched", "sched_process_exec")?;
+    attach(&mut ebpf, "trace_exec", "sched", "sched_process_exec")?;
+    attach(&mut ebpf, "trace_setuid", "syscalls", "sys_enter_setuid")?;
 
     let mut ring_buf = RingBuf::try_from(ebpf.take_map("EVENTS").context("EVENTS map not found")?)?;
 
-    info!("Monitoring process execution... (Ctrl+C to stop)");
+    info!("Monitoring process execution and setuid... (Ctrl+C to stop)");
 
     let mut tick = time::interval(time::Duration::from_millis(50));
     loop {
@@ -40,6 +36,21 @@ async fn main() -> Result<()> {
         }
     }
 
+    Ok(())
+}
+
+fn attach(ebpf: &mut Ebpf, name: &str, category: &str, event: &str) -> Result<()> {
+    let program: &mut TracePoint = ebpf
+        .program_mut(name)
+        .with_context(|| format!("{name} program not found for {category}:{event}"))?
+        .try_into()
+        .with_context(|| format!("{name} is not a tracepoint for {category}:{event}"))?;
+    program
+        .load()
+        .with_context(|| format!("loading {name} for {category}:{event}"))?;
+    program
+        .attach(category, event)
+        .with_context(|| format!("attaching {name} to {category}:{event}"))?;
     Ok(())
 }
 
@@ -82,8 +93,9 @@ fn cstr(bytes: &[u8]) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{cstr, format_event};
     use ferrisentry_common::{COMM_LEN, Event, KIND_EXEC, KIND_OPENAT, KIND_SETUID, PATH_LEN};
+
+    use super::{cstr, format_event};
     fn event(kind: u32) -> Event {
         let mut event = Event {
             kind,
