@@ -16,7 +16,7 @@ sleep 2
 /bin/echo "hello-ferrisentry-test" > /dev/null
 sleep 1
 
-if grep -q "COMM: echo" "$LOG_FILE"; then
+if grep -q "\[exec\].*comm=echo" "$LOG_FILE"; then
     echo "PASS: execve event captured for 'echo'"
 else
     echo "FAIL: no execve event for 'echo' found in agent output:"

@@ -61,7 +61,7 @@ sys_enter_openat   ┘
 - Produces: `Event`, `EventKind` 상수, `EVENTS` ring buffer — Task 2~6의 모든 probe가 이걸 쓴다.
 - Produces: 유저스페이스 출력 포맷 `[<kind>] pid=<n> ppid=<n> uid=<n> comm=<name> cgroup=<id> <상세>` — 통합 테스트가 이 포맷을 grep한다.
 
-- [ ] **Step 1: `ferrisentry-common/src/lib.rs`를 아래 내용으로 교체**
+- [x] **Step 1: `ferrisentry-common/src/lib.rs`를 아래 내용으로 교체**
 
 ```rust
 #![no_std]
@@ -102,7 +102,7 @@ pub struct Event {
 unsafe impl aya::Pod for Event {}
 ```
 
-- [ ] **Step 2: ABI 테스트를 Event 기준으로 교체 (`ferrisentry-common/tests/exec_event_abi.rs`)**
+- [x] **Step 2: ABI 테스트를 Event 기준으로 교체 (`ferrisentry-common/tests/exec_event_abi.rs`)**
 
 커널과 유저스페이스가 같은 바이트 레이아웃을 본다는 걸 고정한다. 크기 상수는 실제 컴파일 값을 확인해서 넣는다 (`cargo test` 실패 메시지에 실제 값이 나온다).
 
@@ -142,7 +142,7 @@ fn path_is_nul_terminated_when_shorter_than_the_buffer() {
 }
 ```
 
-- [ ] **Step 3: eBPF 쪽을 새 포맷으로 (`ferrisentry-ebpf/src/main.rs`)**
+- [x] **Step 3: eBPF 쪽을 새 포맷으로 (`ferrisentry-ebpf/src/main.rs`)**
 
 맵 이름을 `EXEC_EVENTS` → `EVENTS`로 바꾸고, 이벤트를 만드는 공통 함수를 하나 둔다. `ppid`/`cgroup_id`는 Task 6에서 채우므로 지금은 0.
 
@@ -216,7 +216,7 @@ static LICENSE: [u8; 13] = *b"Dual MIT/GPL\0";
 
 `COMM_LEN` import가 안 쓰이면 지운다 (경고 0을 유지).
 
-- [ ] **Step 4: 유저스페이스 출력 포맷 (`ferrisentry/src/main.rs`)**
+- [x] **Step 4: 유저스페이스 출력 포맷 (`ferrisentry/src/main.rs`)**
 
 `take_map("EVENTS")`로 바꾸고, `format_event`를 종류별로 분기한다. 포맷 함수는 순수 함수로 두고 유닛 테스트를 붙인다 (커널 없이 검증되는 유일한 부분).
 
@@ -253,11 +253,11 @@ fn cstr(bytes: &[u8]) -> String {
 
 `format_dest`는 Task 3에서 추가한다. 지금은 `String::new()`로 두거나 `KIND_CONNECT` 분기를 Task 3에서 넣는다.
 
-- [ ] **Step 5: 기존 통합 테스트 문구 맞추기 (`tests/verify_execve_capture.sh`)**
+- [x] **Step 5: 기존 통합 테스트 문구 맞추기 (`tests/verify_execve_capture.sh`)**
 
 grep 문구를 새 포맷에 맞춘다: `grep -q "\[exec\].*comm=echo"`.
 
-- [ ] **Step 6: 빌드 + 테스트 + 통합 테스트**
+- [x] **Step 6: 빌드 + 테스트 + 통합 테스트**
 
 ```bash
 cargo test --config 'target."cfg(all())".runner="env"'
@@ -267,7 +267,7 @@ sudo ./tests/verify_execve_capture.sh
 Expected: 유닛 테스트 전부 통과, 통합 테스트 PASS.
 `size_of::<Event>()` assert가 실패하면 메시지에 나온 실제 값으로 테스트 상수를 고친다 (구조체를 바꾸지 말 것).
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add -A && git commit -m "refactor: replace ExecEvent with a shared Event format"

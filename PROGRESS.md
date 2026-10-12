@@ -1,6 +1,6 @@
 # Ferrisentry 진행 현황
 
-- 마지막 업데이트: 2026-10-08
+- 마지막 업데이트: 2026-10-12
 - 기획서: [PLANNING.md](PLANNING.md) · 설계: [spec](docs/superpowers/specs/2026-09-22-ferrisentry-design.md) · 용어집: [GLOSSARY.md](docs/GLOSSARY.md)
 - 현재 plan: [Phase 1 — 핵심 probe](docs/superpowers/plans/2026-10-08-phase1-core-probes.md)
 
@@ -14,7 +14,7 @@
 
 지금 바로 해야 할 일 (위에서부터 순서대로):
 
-- [ ] Phase 1 Task 1: 공용 `Event` 포맷으로 교체
+- [x] Phase 1 Task 1: 공용 `Event` 포맷으로 교체
 - [ ] Phase 1 Task 2~4: `setuid` → `connect` → `openat` probe 추가
 - [ ] Phase 1 Task 5: ring buffer 유실 카운터
 - [ ] Phase 1 Task 6: `ppid`, `cgroup_id` 채우기 (aya-tool vmlinux 바인딩)
@@ -56,7 +56,7 @@ plan: [2026-10-08-phase1-core-probes.md](docs/superpowers/plans/2026-10-08-phase
 | 상태 | Task | 내용 |
 |---|---|---|
 | ✅ | — | plan 작성 |
-| ⬜ | 1 | 공용 `Event` 포맷으로 교체 (exec 이식, ABI 테스트) |
+| ✅ | 1 | 공용 `Event` 포맷으로 교체 (exec 이식, ABI 테스트) |
 | ⬜ | 2 | `setuid` probe |
 | ⬜ | 3 | `connect` probe (목적지 IP/포트) |
 | ⬜ | 4 | `openat` probe (쓰기 의도 flags만) |
@@ -130,3 +130,11 @@ plan: [2026-10-08-phase1-core-probes.md](docs/superpowers/plans/2026-10-08-phase
 - `bpf-linker`는 소스 빌드에 LLVM이 필요해서 `cargo-binstall`로 설치함
 - 2026-10-08 main 병합 후 재검증: 유닛 테스트 2개 통과, 통합 테스트 PASS
 - 원격(`origin`)의 `main`은 GitHub가 만든 `Initial commit`(README 한 줄)뿐이라 로컬과 히스토리가 분기되어 있었다. 2026-10-08에 로컬 히스토리로 force-push하고, revert 상태로 남아 있던 원격 `phase0-foundation` 브랜치는 삭제했다
+
+### Phase 1 Task 1 검증 기록
+
+- 2026-10-12, Ubuntu WSL2 root에서 공용 Event 전환 검증 완료.
+- ABI: 크기 200, 정렬 8, 모든 필드 오프셋 고정. reserved 4바이트로 tail padding을 명시하고 0으로 초기화.
+- 유닛 테스트 6개 통과 (포맷/C 문자열 5개, ABI 1개); cargo test runner env 사용.
+- ./tests/verify_execve_capture.sh → PASS: execve event captured for 'echo'.
+- ppid/cgroup_id는 Task 6까지 0이며, connect 목적지 포맷은 Task 3에서 추가.
